@@ -87,3 +87,6 @@ STATICFILES_DIRS = [
 # Login / Logout ke baad kahaan bhejna hai
 LOGIN_REDIRECT_URL = "scheduler:home"
 LOGOUT_REDIRECT_URL = "scheduler:home"
+
+MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
