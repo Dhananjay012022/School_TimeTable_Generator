@@ -11,7 +11,6 @@ myvenv2/
 env/
 
 # Django stuff
-db.sqlite3
 *.log
 staticfiles/
 media/
