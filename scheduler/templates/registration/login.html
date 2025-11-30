@@ -1,0 +1,101 @@
+{% extends "scheduler/base.html" %}
+
+{% block title %}Login · School Timetable{% endblock %}
+{% block header_title %}Login{% endblock %}
+{% block header_subtitle %}Sign in to manage timetables.{% endblock %}
+
+{% block extra_head %}
+<style>
+  .auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .auth-card {
+    max-width: 420px;
+    width: 100%;
+    margin: 8px auto 0;
+  }
+
+  .auth-card-inner {
+    padding: 20px 22px 24px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 14px 35px rgba(15,23,42,0.18);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+
+  .auth-card h5 {
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  #id_username,
+  #id_password {
+    width: 100%;
+    border-radius: 999px;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid rgba(148,163,184,0.8);
+    background: rgba(248,250,252,0.9);
+    font-size: 0.95rem;
+  }
+
+  #id_username:focus,
+  #id_password:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37,99,235,0.3);
+    background: #ffffff;
+  }
+
+  .auth-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .auth-btn {
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
+    font-weight: 500;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-card-inner">
+      <form method="post" class="vstack gap-3">
+        {% csrf_token %}
+        <h5 class="mb-1">Sign in</h5>
+        <p class="text-muted small mb-2">
+          Use your admin, teacher or student account to access timetables.
+        </p>
+
+        {% if form.errors %}
+          <div class="alert alert-danger py-2 px-3 small mb-2">
+            Invalid username or password. Please try again.
+          </div>
+        {% endif %}
+
+        <div class="mb-2">
+          <label class="auth-label">Username</label>
+          {{ form.username }}
+        </div>
+
+        <div class="mb-3">
+          <label class="auth-label">Password</label>
+          {{ form.password }}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 auth-btn">
+          Login
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

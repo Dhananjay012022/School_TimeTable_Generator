@@ -1,0 +1,58 @@
+{% extends "scheduler/base.html" %}
+
+{% block title %}Add Timetable Entry{% endblock %}
+{% block header_title %}Add Timetable Entry{% endblock %}
+{% block header_subtitle %}
+  Create or edit a single timetable slot for a class.
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}
+              </label>
+              {{ field }}
+
+              {% if field.help_text %}
+                <div class="form-text">{{ field.help_text }}</div>
+              {% endif %}
+
+              {% for error in field.errors %}
+                <div class="invalid-feedback d-block">
+                  {{ error }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <a href="{% url 'scheduler:timetable_list' %}"
+               class="btn btn-light btn-pill">
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary btn-pill">
+              Save Entry
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

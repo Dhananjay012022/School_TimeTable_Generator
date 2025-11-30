@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Timetable - {{ school_class.name }}</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 24px;
+      color: #111827;
+    }
+
+    .wrapper {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 👇 heading ko centre karne ke liye */
+    .header-block {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .title {
+      font-size: 1.8rem;
+      margin: 0 0 4px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #6b7280;
+      margin: 0;
+    }
+
+    table.timetable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    table.timetable th,
+    table.timetable td {
+      border: 1px solid #e5e7eb;
+      padding: 8px 10px;
+      vertical-align: top;
+    }
+
+    table.timetable thead th {
+      background: #f3f4f6;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .day-cell {
+      width: 120px;
+      font-weight: 600;
+      background: #f9fafb;
+    }
+
+    .subject-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #e0f2fe;
+      border: 1px solid #bfdbfe;
+      color: #111827;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .color-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: #3b82f6;
+      border: 1px solid rgba(0,0,0,.18);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .meta {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.78rem;
+      color: #4b5563;
+    }
+
+    .free-text {
+      color: #9ca3af;
+      font-size: 0.8rem;
+    }
+
+    /* PRINT SETTINGS */
+    @page {
+      size: A4 landscape;
+      margin: 8mm;
+    }
+
+    @media print {
+      body {
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header-block">
+      <div class="title">Timetable - {{ school_class.name }}</div>
+      <p class="subtitle">
+        Printed view · Class: {{ school_class.name }} · Strength: {{ school_class.strength }}
+      </p>
+    </div>
+
+    <table class="timetable">
+      <thead>
+        <tr>
+          <th>Day / Period</th>
+          {% for order in period_orders %}
+            <th>P{{ order }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td class="day-cell">
+              {{ row.label }}
+            </td>
+
+            {% for entry in row.cells %}
+              <td>
+                {% if entry %}
+                  {% with color=entry.subject.color_code|default:"#e0f2fe" %}
+                    <span
+                      class="subject-pill"
+                      style="
+                        background-color: {{ color }};
+                        border-color: {{ color }};
+                      "
+                    >
+                      <span
+                        class="color-dot"
+                        style="background-color: {{ color }};"
+                      ></span>
+                      {{ entry.subject.name }}
+                    </span>
+                  {% endwith %}
+                  <span class="meta">
+                    {{ entry.teacher.user.get_full_name|default:entry.teacher.user.username }}
+                    &middot;
+                    {{ entry.room.name }}
+                  </span>
+                {% else %}
+                  <span class="free-text">-</span>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    window.addEventListener("load", function () {
+      window.print();
+    });
+  </script>
+</body>
+</html>

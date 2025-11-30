@@ -1,0 +1,477 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}School Timetable{% endblock %}</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
+
+  <style>
+    /* -------------------------------------------------
+       GLOBAL + BACKGROUND
+       ------------------------------------------------- */
+    body {
+      background:
+        linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)),
+        url("{% static 'backgrounds/bg.jpg' %}") center/cover no-repeat fixed;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #1f2937;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* -------------------------------------------------
+       NAVBAR
+       ------------------------------------------------- */
+    .navbar-blur {
+      backdrop-filter: blur(18px);
+      background-color: rgba(255,255,255,0.85);
+      box-shadow: 0 12px 30px rgba(15,23,42,0.1);
+    }
+
+    .navbar-brand span {
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+
+    .navbar-brand i {
+      font-size: 1.4rem;
+    }
+
+    .btn-pill {
+      border-radius: 999px;
+    }
+
+    .badge-role {
+      border-radius: 999px;
+      padding: .25rem .75rem;
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    /* -------------------------------------------------
+       PAGE HEADER + CONTAINER
+       ------------------------------------------------- */
+    .page-header {
+      padding: 24px 24px 12px;
+      background: transparent;
+    }
+
+    .page-header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 0.75rem;
+    }
+
+    h1.page-title {
+      margin: 0;
+      font-weight: 700;
+      font-size: 28px;
+      color: #0f1724;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h1.page-title i {
+      font-size: 1.5rem;
+      color: #1d4ed8;
+    }
+
+    .page-subtitle {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .container-inner {
+      max-width: 1100px;
+      margin: 0 auto 36px;
+      padding: 0 24px 28px;
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.65);
+      border-radius: 18px;
+      padding: 22px 22px 24px;
+      box-shadow: 0 18px 45px rgba(15,23,42,0.16);
+      backdrop-filter: blur(12px) saturate(130%);
+      border: 1px solid rgba(255,255,255,0.75);
+    }
+
+    /* -------------------------------------------------
+       TIMETABLE TABLE
+       ------------------------------------------------- */
+    .timetable {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.85);
+    }
+
+    .timetable thead th {
+      background: linear-gradient(90deg, rgba(37,99,235,0.18), rgba(79,70,229,0.08));
+      color: #020617;
+      font-weight: 700;
+      border-bottom: 2px solid rgba(15,23,36,0.08);
+      text-align: center;
+      padding: 12px 10px;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .timetable tbody td {
+      padding: 18px 12px;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(15,23,36,0.04);
+      background: transparent;
+    }
+
+    .timetable tbody tr:nth-child(even) td {
+      background: rgba(248,250,252,0.65);
+    }
+
+    .timetable tbody tr:hover td {
+      background: rgba(219,234,254,0.55);
+    }
+
+    .day-cell {
+      font-weight: 700;
+      width: 140px;
+      text-align: left;
+      padding-left: 18px;
+      background: rgba(239,246,255,0.95);
+      border-right: 1px solid rgba(148,163,184,0.35);
+    }
+
+    /* -------------------------------------------------
+       SUBJECT PILL + META
+       ------------------------------------------------- */
+    .subject-pill {
+      display: inline-block;
+      min-width: 110px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      color: #05203a;
+      font-weight: 700;
+      margin-bottom: 6px;
+      box-shadow: 0 2px 6px rgba(10,20,40,0.06);
+      background: rgba(255,255,255,0.85);
+    }
+
+    .meta {
+      display: block;
+      font-weight: 500;
+      font-size: 0.92rem;
+      opacity: 0.85;
+      margin-top: 6px;
+    }
+
+    /* -------------------------------------------------
+       LEGEND
+       ------------------------------------------------- */
+    .legend {
+      margin-top: 12px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .legend .item {
+      font-size: 0.9rem;
+      padding:6px 8px;
+      border-radius:8px;
+      background: rgba(0,0,0,0.03);
+    }
+
+    .legend .subject-pill {
+      transition: transform 240ms ease, opacity 240ms ease;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.98);
+    }
+
+    .legend .subject-pill.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* -------------------------------------------------
+       TOAST
+       ------------------------------------------------- */
+    #st-toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1100;
+      pointer-events: none;
+    }
+    #st-toast .toast {
+      pointer-events: auto;
+      min-width: 220px;
+    }
+
+    /* -------------------------------------------------
+       RESPONSIVE
+       ------------------------------------------------- */
+    @media (max-width: 900px) {
+      .page-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .timetable thead { display: none; }
+      .timetable, .timetable tbody, .timetable tr, .timetable td {
+        display: block;
+        width: 100%;
+      }
+      .timetable tr {
+        margin-bottom: 12px;
+        border-radius: 10px;
+        padding: 12px;
+        background: rgba(255,255,255,0.9);
+        box-shadow: 0 6px 16px rgba(15,23,42,0.12);
+      }
+      .day-cell {
+        width: auto;
+        padding: 8px 12px;
+        border-right: none;
+        background: transparent;
+        border-bottom: 1px solid rgba(148,163,184,0.35);
+        margin-bottom: 6px;
+      }
+      .timetable td {
+        padding: 8px 12px;
+        border-bottom: none;
+      }
+    }
+
+    /* -------------------------------------------------
+       ANIMATIONS FOR SUBJECT PILL
+       ------------------------------------------------- */
+    .subject-pill {
+      transform-origin: center;
+      transition:
+        transform 220ms cubic-bezier(.2,.9,.2,1),
+        box-shadow 220ms ease,
+        opacity 300ms ease;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .subject-pill.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .subject-pill.enter-from {
+      transform: translateY(8px) scale(0.98);
+    }
+
+    .subject-pill:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 6px 18px rgba(10,20,40,0.12);
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+<div class="app-shell">
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-blur sticky-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+        <i class="ri-calendar-schedule-line"></i>
+        <span>School Timetable</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-end" id="topNavbar">
+        <ul class="navbar-nav align-items-center gap-2">
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <span class="badge bg-primary-subtle text-primary-emphasis badge-role">
+                {% if user.profile.role == "ADMIN" %}Admin
+                {% elif user.profile.role == "TEACHER" %}Teacher
+                {% elif user.profile.role == "STUDENT" %}Student
+                {% else %}User{% endif %}
+              </span>
+            </li>
+
+            {# Teacher-only "My Timetable" link #}
+            {% if user.profile.role == "TEACHER" %}
+              <li class="nav-item d-none d-md-block">
+                <a class="nav-link" href="{% url 'scheduler:my_timetable' %}">
+                  <i class="ri-time-line me-1"></i> My Timetable
+                </a>
+              </li>
+            {% endif %}
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+                <i class="ri-user-3-line"></i>
+                <span>{{ user.username }}</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="ri-user-settings-line me-2"></i>Profile
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item text-danger">
+                      <i class="ri-logout-box-r-line me-2"></i>Logout
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="btn btn-sm btn-primary btn-pill" href="{% url 'login' %}">
+                <i class="ri-login-circle-line me-1"></i> Login
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <header class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <h1 class="page-title">
+          <i class="ri-time-line"></i>
+          {% block header_title %}Timetable{% endblock %}
+        </h1>
+        <p class="page-subtitle">
+          {% block header_subtitle %}View and manage the class schedule in one beautiful view.{% endblock %}
+        </p>
+      </div>
+      {% block header_actions %}{% endblock %}
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="container-inner">
+    <div class="glass-card">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- TOAST AREA (OPTIONAL USE IN VIEWS) -->
+  <div id="st-toast" aria-live="polite" aria-atomic="true"></div>
+
+</div>
+
+<!-- Color script -->
+<script>
+  (function(){
+    const palette = {
+      "Mathematics": "#81E6D9",
+      "Math": "#81E6D9",
+      "English": "#C7B3FF",
+      "Science": "#93C5FD",
+      "Physics": "#93C5FD",
+      "Chemistry": "#FFD580",
+      "Biology": "#A3E635",
+      "Computer": "#67E8F9",
+      "Computer Science": "#67E8F9",
+      "Hindi": "#FFB4C6",
+      "Sanskrit": "#FFB4C6",
+      "Social": "#FFD28A",
+      "History": "#FFD28A",
+      "Geography": "#FFE3A8"
+    };
+
+    function stringToColor(s) {
+      let hash = 0;
+      for (let i = 0; i < s.length; i++) hash = s.charCodeAt(i) + ((hash << 5) - hash);
+      const h = Math.abs(hash) % 360;
+      return `hsl(${h} 80% 75%)`;
+    }
+
+    function applyColors() {
+      document.querySelectorAll('.subject-pill').forEach(el => {
+        const dbColor = el.getAttribute('data-color');
+        if (dbColor) {
+          el.style.background = dbColor;
+          el.style.color = '#05203a';
+          return;
+        }
+        const name = (el.getAttribute('data-subject') || '').trim();
+        el.style.background = palette[name] || stringToColor(name);
+        el.style.color = '#05203a';
+      });
+    }
+
+    window.applySubjectColors = applyColors;
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', applyColors);
+    } else { applyColors(); }
+
+    document.addEventListener('apply-subject-colors', applyColors);
+  })();
+</script>
+
+<!-- Animations -->
+<script>
+  (function(){
+    function revealPills() {
+      const pills = [...document.querySelectorAll('.subject-pill')];
+      pills.forEach((el, i) => {
+        if (el.classList.contains('visible')) return;
+        el.classList.add('enter-from');
+        setTimeout(() => el.classList.add('visible'), 40 + i * 28);
+        setTimeout(() => el.classList.remove('enter-from'), 560);
+      });
+    }
+
+    function init() {
+      if (window.applySubjectColors) {
+        window.applySubjectColors();
+        setTimeout(revealPills, 80);
+      } else revealPills();
+    }
+
+    if (document.readyState === 'loading')
+      document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,47 @@
+{% extends "scheduler/base.html" %}
+
+{% block title %}All Class Timetables{% endblock %}
+{% block header_title %}Class Timetables{% endblock %}
+{% block header_subtitle %}Select a class to view or download its timetable.{% endblock %}
+
+{% block content %}
+
+<div class="table-responsive">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>Class</th>
+        <th>Strength</th>
+        <th class="text-end">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in classes %}
+        <tr>
+          <td>{{ c.name }}</td>
+          <td>{{ c.strength }}</td>
+          <td class="text-end">
+            <div class="btn-group">
+              <a href="{% url 'scheduler:timetable_detail' c.id %}"
+                 class="btn btn-sm btn-outline-primary btn-pill">
+                <i class="ri-eye-line me-1"></i> View
+              </a>
+              <a href="{% url 'scheduler:timetable_pdf' c.id %}"
+                 class="btn btn-sm btn-outline-secondary btn-pill" target="_blank">
+                <i class="ri-file-download-line me-1"></i> PDF
+              </a>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3" class="text-center text-muted py-3">
+            No classes available yet.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

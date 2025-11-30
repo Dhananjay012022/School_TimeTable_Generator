@@ -1,0 +1,152 @@
+{% extends "scheduler/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ school_class.name }} · Timetable{% endblock %}
+
+{% block header_title %}
+  {{ school_class.name }} Timetable
+{% endblock %}
+
+{% block header_subtitle %}
+  Weekly schedule for {{ school_class.name }} – subjects, teachers & rooms at a glance.
+{% endblock %}
+
+{% block header_actions %}
+  <div class="d-flex gap-2">
+    <a href="{% url 'scheduler:timetable_pdf' school_class.id %}"
+       class="btn btn-sm btn-outline-primary btn-pill"
+       target="_blank">
+      <i class="ri-file-download-line me-1"></i> Download PDF
+    </a>
+    <button type="button"
+            class="btn btn-sm btn-outline-secondary btn-pill"
+            onclick="window.print()">
+      <i class="ri-printer-line me-1"></i> Print
+    </button>
+  </div>
+{% endblock %}
+
+{% block content %}
+
+  <!-- Top meta info -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="small text-muted text-uppercase" style="letter-spacing:.08em;">
+        Class Overview
+      </div>
+      <div class="mt-1">
+        <strong>Class:</strong> {{ school_class.name }}<br>
+        <strong>Strength:</strong> {{ school_class.strength }}
+      </div>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+      <div class="small text-muted text-uppercase" style="letter-spacing:.08em;">
+        Legend & Notes
+      </div>
+      <div class="mt-1 small text-muted">
+        Colored pill = Subject<br>
+        Below text = Teacher · Room<br>
+        “Free” means no scheduled class in that period.
+      </div>
+    </div>
+  </div>
+
+  <!-- Timetable Grid -->
+  <div class="table-responsive">
+    <table class="timetable">
+      <thead>
+        <tr>
+          <th class="day-cell">Day / Period</th>
+          {% for order in period_orders %}
+            <th>
+              <div class="fw-semibold">P{{ order }}</div>
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <!-- Day label cell -->
+            <td class="day-cell">
+              {{ row.label }}
+            </td>
+
+            <!-- Period cells -->
+            {% for entry in row.cells %}
+              <td>
+                {% if entry %}
+                  <span class="subject-pill"
+                        data-subject="{{ entry.subject.name|escape }}"
+                        {% if entry.subject.color_code %}
+                          data-color="{{ entry.subject.color_code }}"
+                        {% endif %}>
+                    {{ entry.subject.name }}
+                  </span>
+                  <span class="meta">
+                    {{ entry.teacher.user.get_full_name|default:entry.teacher.user.username }}
+                    &middot;
+                    {{ entry.room.name }}
+                  </span>
+                {% else %}
+                  <span class="text-muted small">Free</span>
+                {% endif %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Subject Legend (auto-built using JS from DOM) -->
+  <div class="mt-4">
+    <div class="small text-muted text-uppercase mb-2" style="letter-spacing:.08em;">
+      Subject Legend
+    </div>
+    <div class="legend" id="subject-legend">
+      <div class="item">Pill = Subject</div>
+      <div class="item">Below = Teacher / Room</div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const legend = document.getElementById("subject-legend");
+
+      // Remove any old generated pills
+      const existing = legend.querySelectorAll(".subject-pill[data-subject]");
+      existing.forEach(el => el.remove());
+
+      // Collect unique subjects from the timetable cells
+      const subjects = new Set();
+      document.querySelectorAll(".subject-pill").forEach(el => {
+        const s = el.getAttribute("data-subject");
+        if (s) subjects.add(s);
+      });
+
+      // For each subject, create a pill in the legend
+      subjects.forEach(subj => {
+        const item = document.createElement("span");
+        item.className = "subject-pill";
+        item.setAttribute("data-subject", subj);
+        item.textContent = subj;
+
+        // Try to copy color from any matching subject-pill in the table
+        const sample = document.querySelector('.subject-pill[data-subject="' + subj.replace(/"/g, '\\"') + '"]');
+        if (sample && sample.getAttribute("data-color")) {
+          item.setAttribute("data-color", sample.getAttribute("data-color"));
+        }
+
+        legend.appendChild(item);
+      });
+
+      // Apply JS color logic defined in base.html
+      if (window.applySubjectColors) {
+        window.applySubjectColors();
+      }
+    });
+  </script>
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "scheduler/base.html" %}
+
+{% block title %}My Timetable · {{ teacher.user.get_full_name|default:teacher.user.username }}{% endblock %}
+{% block header_title %}My Timetable{% endblock %}
+{% block header_subtitle %}
+  Personal schedule for {{ teacher.user.get_full_name|default:teacher.user.username }} ({{ teacher.code }}).
+{% endblock %}
+
+{% block content %}
+
+<div class="row mb-3">
+  <div class="col-md-6">
+    <div class="small text-muted text-uppercase" style="letter-spacing:.08em;">
+      Teacher Info
+    </div>
+    <div class="mt-1">
+      <strong>Name:</strong> {{ teacher.user.get_full_name|default:teacher.user.username }}<br>
+      <strong>Code:</strong> {{ teacher.code }}
+    </div>
+  </div>
+  <div class="col-md-6 text-md-end mt-3 mt-md-0">
+    <div class="small text-muted text-uppercase" style="letter-spacing:.08em;">
+      Notes
+    </div>
+    <div class="mt-1 small text-muted">
+      This view shows all periods where you are assigned as the teacher.
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="timetable">
+    <thead>
+      <tr>
+        <th class="day-cell">Day / Period</th>
+        {% for order in period_orders %}
+          <th>
+            <div class="fw-semibold">P{{ order }}</div>
+          </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td class="day-cell">{{ row.label }}</td>
+          {% for entry in row.cells %}
+            <td>
+              {% if entry %}
+                <span class="subject-pill"
+                      data-subject="{{ entry.subject.name|escape }}"
+                      {% if entry.subject.color_code %}
+                        data-color="{{ entry.subject.color_code }}"
+                      {% endif %}>
+                  {{ entry.subject.name }}
+                </span>
+                <span class="meta">
+                  {{ entry.school_class.name }}
+                  &middot;
+                  {{ entry.room.name }}
+                </span>
+              {% else %}
+                <span class="text-muted small">Free</span>
+              {% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
