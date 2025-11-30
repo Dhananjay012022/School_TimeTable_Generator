@@ -11,10 +11,7 @@ SECRET_KEY = 'django-insecure-97y(thq51gju#cpy7cy^o5*g-w#-o#skt01)6-c)m-0zd_fhy5
 
 DEBUG = True
 
-ALLOWED_HOSTS = [ 
-    "school-timetable-generator.onrender.com",
-    "localhost",
-    "127.0.0.1",]
+ALLOWED_HOSTS = ["*",]
 
 INSTALLED_APPS = [
     # Django built-ins
