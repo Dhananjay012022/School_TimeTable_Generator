@@ -11,7 +11,10 @@ SECRET_KEY = 'django-insecure-97y(thq51gju#cpy7cy^o5*g-w#-o#skt01)6-c)m-0zd_fhy5
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ 
+    "school-timetable-generator.onrender.com",
+    "localhost",
+    "127.0.0.1",]
 
 INSTALLED_APPS = [
     # Django built-ins
@@ -90,3 +93,7 @@ LOGOUT_REDIRECT_URL = "scheduler:home"
 
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://school-timetable-generator.onrender.com",
+]
